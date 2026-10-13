@@ -45,4 +45,11 @@ def wrap(elf):
 if __name__ == '__main__':
     src, dst = sys.argv[1], sys.argv[2]
     data = open(src, 'rb').read()
-    open(dst, 'wb').write(wrap(data))
+    if data[:4] == SELF_MAGIC:
+        sys.exit(f'{src} is already a SELF; nothing to do')
+    try:
+        out = wrap(data)  # before opening dst, so a failed run leaves it untouched
+    except ValueError as e:
+        sys.exit(f'{src}: {e}')
+    open(dst, 'wb').write(out)
+    print(f'{src} -> {dst}: wrapped as SELF')
